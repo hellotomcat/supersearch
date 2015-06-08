@@ -155,7 +155,7 @@ func! OpenSearchWindow(k)
         let key = shellescape(a:k)
         copen
         let path = join(g:source_path, " ")
-        let grep_cmd = "find ".path." ! -name 'tags' -type f|xargs grep --exclude-dir='.svn' -Rn ".key
+        let grep_cmd = "find ".path." ! -name 'tags' -type f|xargs grep -H --exclude-dir='.svn' -Rn ".key
        " echo grep_cmd
         let bytecode = system(grep_cmd)
         set modifiable
