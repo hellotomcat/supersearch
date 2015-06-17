@@ -20,13 +20,13 @@ Installation
 Example
 ------------
 Project directory structure:
-└── src sr
-     ├── corecor
-     ├── eventven
-     ├── httphtt
-     ├── mailmai
-     ├── miscmis
-     └── os  o
+└── src
+     ├── core
+     ├── event
+     ├── http
+     ├── mail
+     ├── misc
+     └── os
 The configuration file (project.conf):
 /http
 /core
