@@ -18,6 +18,7 @@ information:
     在命令模式中,s直接搜索当前单词
     在视图模式中先选择要搜索的文本，再按,s
 
+![image](https://raw.githubusercontent.com/hellotomcat/supersearch/master/static/image/search.png)
 
 Installation
 ------------
