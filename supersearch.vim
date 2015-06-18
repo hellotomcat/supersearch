@@ -105,9 +105,9 @@ func! CreateTags(path)
         if split(res)[0] != "tags"
                 "echo "create tags:".a:path."/tags"
                 let mk_tags_cmd = "cd ".a:path.";ctags -R --c-kinds=+p --c++-kinds=+px --fields=+iaS --extra=+q;cd -"
-                echo mk_tags_cmd
+                "echo mk_tags_cmd
                 let xxx = system(mk_tags_cmd)
-                echo "create_ok"
+                "echo "create_ok"
         endif
 endfunc
 
