@@ -1,6 +1,6 @@
 " File: supersearch.vim
 " Author: Tian (root AT codecn DOT org)
-" Version: 1.1
+" Version: 1.2
 " Last Modified: 2015.06.18
 " Copyright: Copyright (C) 2015 Tian
 "
@@ -59,6 +59,7 @@
 "2015/06/18:
 "   1.修复当前目录只有一个文件时搜索后无法跳转问题 by Teikay
 "   2.修复生成tags文件错乱问题 by Tian
+"   3.搜索时过滤掉.swp文件 by Tian
 "
 
 
@@ -159,7 +160,7 @@ func! OpenSearchWindow(k)
         let key = shellescape(a:k)
         copen
         let path = join(g:source_path, " ")
-        let grep_cmd = "find ".path." ! -name 'tags' -type f|xargs grep -H --exclude-dir='.svn' -Rn ".key
+        let grep_cmd = "find ".path." ! -name 'tags' ! -name '*.swp' -type f|xargs grep -F --exclude-dir='.svn' -Rn ".key
        " echo grep_cmd
         let bytecode = system(grep_cmd)
         set modifiable
