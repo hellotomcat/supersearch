@@ -35,13 +35,13 @@ Installation
 Example
 ------------
 Project directory structure:
-src
-    --http
-    --core
-    --event
-    --mail
-    --misc
-    --os
+src<br />
+    --http<br />
+    --core<br />
+    --event<br />
+    --mail<br />
+    --misc<br />
+    --os<br />
 The configuration file (project.conf):
 /http
 /core
