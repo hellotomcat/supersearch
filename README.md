@@ -35,21 +35,24 @@ Installation
 Example
 ------------
 Project directory structure:
-src<br />
-    --http<br />
-    --core<br />
-    --event<br />
-    --mail<br />
-    --misc<br />
-    --os<br />
+```vim
+src
+    --http
+    --core
+    --event
+    --mail
+    --misc
+    --os
+```
 The configuration file (project.conf):
+```vim
 /http
 /core
 /event
 /mail
 /misc
 /os
-
+```
 
 最后：
 在插件文件的尾部定义了搜索快捷键，你可以自己修改为你喜欢的
