@@ -1,7 +1,7 @@
 " File: supersearch.vim
 " Author: Tian (root AT codecn DOT org)
-" Version: 1.0
-" Last Modified: 2015.06.17
+" Version: 1.2
+" Last Modified: 2015.06.18
 " Copyright: Copyright (C) 2015 Tian
 "
 " The "Super Search" plugin is a source code browser plugin for Vim and provides
@@ -10,7 +10,7 @@
 " programming languages.  You can visit the supersearch plugin home page for more
 " information:
 "
-"       https://github.com/c-wind/supersearch
+"       https://github.com/hellotomcat/supersearch
 "
 " Installation
 " ------------
@@ -56,11 +56,14 @@
 "最后：
 "        在插件文件的尾部定义了搜索快捷键，你可以自己修改为你喜欢的
 "
-"
+"2015/06/18:
+"   1.修复当前目录只有一个文件时搜索后无法跳转问题 by Teikay
+"   2.修复生成tags文件错乱问题 by Tian
+"   3.搜索时过滤掉.swp文件 by Tian
 "
 
 
-set tags=/usr/include/tags
+"set tags=/usr/include/tags
 let g:conf_name = "project.conf"
 let g:source_path = []
 
@@ -102,8 +105,10 @@ func! CreateTags(path)
         let res = system(ls_cmd)
         if split(res)[0] != "tags"
                 "echo "create tags:".a:path."/tags"
-                let mk_tags_cmd = "cd ".a:path.";ctags -R --c-kinds=+lp --c++-kinds=+px --fields=+iaS --extra=+q;cd -"
+                let mk_tags_cmd = "cd ".a:path.";ctags -R --c-kinds=+p --c++-kinds=+px --fields=+iaS --extra=+q;cd -"
+                "echo mk_tags_cmd
                 let xxx = system(mk_tags_cmd)
+                "echo "create_ok"
         endif
 endfunc
 
@@ -157,7 +162,7 @@ func! OpenSearchWindow(k)
         let key = shellescape(a:k)
         copen
         let path = join(g:source_path, " ")
-        let grep_cmd = "find ".path." ! -name 'tags' -type f|xargs grep -H --exclude-dir='.svn' -Rn ".key
+        let grep_cmd = "find ".path." ! -name 'tags' ! -name '*.swp' -type f|xargs grep -F --exclude-dir='.svn' -Rn ".key
        " echo grep_cmd
         let bytecode = system(grep_cmd)
         set modifiable

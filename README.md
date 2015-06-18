@@ -6,11 +6,11 @@ information:
 
       https://github.com/hellotomcat/supersearch
 
-这个项目是用来加速vim开发效率的
-1.由于历史原因我们的项目目录中有许多无关的目录包含着无关的代码，导致生成的tags文件往往没有实际用途
-2.当我们需要查看谁调用谁的问题时，要用:grep命令来搜索整个项目目录，相当不方便
+这个项目是用来加速vim开发效率的<br />
+1. 由于历史原因我们的项目目录中有许多无关的目录包含着无关的代码，导致生成的tags文件往往没有实际用途<br />
+2. 当我们需要查看谁调用谁的问题时，要用:grep命令来搜索整个项目目录，相当不方便<br />
 
-现在好了：
+现在好了<br />
 有了supersearch插件，只要配置好与自己有关和目录，生成tags的事再也不用担心了（会自动生成tags文件），还能根据配置的目录进行全文搜索
 
 跳转继续使用传统的ctrl+]
@@ -18,6 +18,7 @@ information:
     在命令模式中,s直接搜索当前单词
     在视图模式中先选择要搜索的文本，再按,s
 
+![image](https://raw.githubusercontent.com/hellotomcat/supersearch/master/static/image/search.png)
 
 Installation
 ------------
