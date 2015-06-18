@@ -72,7 +72,7 @@ func! FileSupportCheck()
         return 0
 endfunc
 
-"获取配置文件中的源码目录，如果没有配置文件，返回当前目录
+"获取配置文件中的源码目录，如果没有配置文件，返回空
 func! GetSourcePath()
         let path_array = split(expand("%:p"), "/")
         let path_index = len(path_array)
@@ -93,7 +93,7 @@ func! GetSourcePath()
                 endif
                 let path_index -= 1
         endwhile
-        return ["."]
+        return []
 endfunc
 
 
@@ -110,13 +110,15 @@ endfunc
 func! GetTagsPath()
         let path_array = GetSourcePath()
         let idx = len(path_array)
+        let tags_array = []
 
         while idx > 0
                 call CreateTags(path_array[idx - 1])
-                let path_array[idx - 1] = path_array[idx - 1]."/tags"
+                "let path_array[idx - 1] = path_array[idx - 1]."/tags"
+                let tags_array = add(tags_array, path_array[idx - 1]."/tags")
                 let idx -= 1
         endwhile
-        return path_array
+        return tags_array
 endfunc
 
 function! SuperSearchStart()
