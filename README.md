@@ -35,24 +35,22 @@ Installation
 
 Example
 ------------
-Project directory structure:
+The configuration file (project.ini):
 ```vim
-src
-    --http
-    --core
-    --event
-    --mail
-    --misc
-    --os
-```
-The configuration file (project.conf):
-```vim
-/http
-/core
-/event
-/mail
-/misc
-/os
+#按F9对应Make
+Make=make
+#按F8对应Test
+Test=go test -v ./client
+#按,f对应格式化
+Format=go fmt 
+#生成tags时跳过以下目录
+ExcludePath=docs,bin,Godeps
+#生成tags时跳过以下类型文件
+CtagsExcludeFile=*.cc,*.c,*.h
+#查找文件时跳过以下类型文件
+FindExcludeFile=*.cc,*.c,*.h
+#扩展tags目录
+#CtagsExtendFile=/usr/local/go/src
 ```
 
 最后：
