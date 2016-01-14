@@ -1,8 +1,8 @@
 " File: supersearch.vim
 " Author: Tian (root AT codecn DOT org)
-" Version: 1.3
-" Last Modified: 2015.12.24
-" Copyright: Copyright (C) 2015 Tian,Teikay
+" Version: 1.4
+" Last Modified: 2016.1.14
+" Copyright: Copyright (C) 2015 ~ 2016 Tian,Teikay
 "
 " The "Super Search" plugin is a source code browser plugin for Vim and provides
 " an overview of the structure of the programming language files and allows
@@ -40,6 +40,9 @@
 "
 "最后：
 "        在插件文件的尾部定义了搜索快捷键，你可以自己修改为你喜欢的
+"
+"2016/01/14:
+"   1.修改关闭vim事件检测机制，感谢 zassen
 "
 "2015/12/24:
 "   1.添加配置项目，支持编译，测试，文件过滤
@@ -293,9 +296,14 @@ nnoremap ,f :call FormatFile()<cr>
 map <F8> :call TestProject()<CR>
 map <F9> :call MakeProject()<CR>
 
-func! OnExit()
-    cclose
-endfunc
 
-au QuitPre * call OnExit()
+"有的vim不支持QuitPre，先检测下
+if exists('##QuitPre')
+    au QuitPre * call CloseSearchWindow()
+else
+    if exists('##VimLeavePre')
+        au VimLeavePre * call CloseSearchWindow()
+    endif
+endif
+
 
