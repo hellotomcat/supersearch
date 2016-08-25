@@ -1,7 +1,7 @@
 " File: supersearch.vim
 " Author: Tian (root AT codecn DOT org)
-" Version: 1.4
-" Last Modified: 2016.1.14
+" Version: 1.5
+" Last Modified: 2016.8.25
 " Copyright: Copyright (C) 2015 ~ 2016 Tian,Teikay
 "
 " The "Super Search" plugin is a source code browser plugin for Vim and provides
@@ -41,6 +41,10 @@
 "最后：
 "        在插件文件的尾部定义了搜索快捷键，你可以自己修改为你喜欢的
 "
+"2016/08/25:
+"   1.修改检测tags方式.
+"   2.默认在未配置格式化方式时，调用gg=G来格式化当前文件.
+"
 "2016/01/14:
 "   1.修改关闭vim事件检测机制，感谢 zassen
 "
@@ -61,7 +65,7 @@ let g:conf_dict = {}
 
 func! FileSupportCheck()
     let ftype = expand("%:e")
-    if ftype ==? "c" || ftype ==? "cpp" || ftype ==? "cc" || ftype ==? "java" || ftype ==? "py" ||  ftype ==? "h" || ftype ==? "go"
+    if ftype ==? "c" || ftype ==? "cpp" || ftype ==? "cc" || ftype ==? "java" || ftype ==? "py" ||  ftype ==? "h" || ftype ==? "go" || ftype ==? "php"
         return 1
     endif
     return 0
@@ -137,16 +141,15 @@ func! GetCtagsExcludeCmd()
 endfunc
 
 func! UpdateTagsFile(path)
-    let ls_cmd =  "ls -t1 ".a:path." |head -n 1"
-    let res = system(ls_cmd)
-    "echo res
-    if len(res) && split(res)[0] != "tags"
+    let tags_file = a:path."/tags"
+    let tags_exist = filereadable(tags_file)
+    let cmd_find =  "find ".a:path." -maxdepth 1 -type f -newer ".tags_file
+
+    if !tags_exist || system(cmd_find) != ""
         let exclude = GetCtagsExcludeCmd()
-        "echo exclude
-        "echo "create tags:".a:path."/tags"
-        let mk_tags_cmd = "cd ".a:path.";ctags -R --c-kinds=+p --c++-kinds=+px --fields=+iaS --extra=+q ".exclude.";cd -"
-        "echo mk_tags_cmd
-        let xxx = system(mk_tags_cmd)
+        let cmd_create_tags = "cd ".a:path.";ctags -R --c-kinds=+p --c++-kinds=+px --fields=+iaS --extra=+q ".exclude.";cd -"
+        "echo cmd_create_tags
+        let xxx = system(cmd_create_tags)
         "echo "create_ok".xxx
     endif
 endfunc
@@ -195,7 +198,8 @@ func! OpenFile()
     let linenumber = info[1]
     "关闭搜索窗口
     call CloseSearchWindow()
-    execute "edit +".linenumber." ".filename
+    execute "tabnew +".linenumber." ".filename
+    "execute "edit +".linenumber." ".filename
 endfunc
 
 func! GetSearchExcludeCmd()
@@ -284,6 +288,8 @@ func! FormatFile()
             return
         endif
         e!
+    else
+        :normal gg=G``
     endif
 endfunc
 
@@ -295,7 +301,6 @@ vnoremap ,s :call SelectSearch()<cr>
 nnoremap ,f :call FormatFile()<cr>
 map <F8> :call TestProject()<CR>
 map <F9> :call MakeProject()<CR>
-
 
 "有的vim不支持QuitPre，先检测下
 if exists('##QuitPre')
