@@ -1,7 +1,7 @@
 " File: supersearch.vim
 " Author: Tian (root AT codecn DOT org)
-" Version: 1.5
-" Last Modified: 2016.8.25
+" Version: 1.6
+" Last Modified: 2016.9.7
 " Copyright: Copyright (C) 2015 ~ 2016 Tian,Teikay
 "
 " The "Super Search" plugin is a source code browser plugin for Vim and provides
@@ -40,6 +40,9 @@
 "
 "最后：
 "        在插件文件的尾部定义了搜索快捷键，你可以自己修改为你喜欢的
+"
+"2016/09/07:
+"   1.修复搜索问题
 "
 "2016/08/25:
 "   1.修改检测tags方式.
@@ -219,7 +222,7 @@ func! OpenSearchWindow(k)
     let path = join(g:source_path, " ")
     let exclude = GetSearchExcludeCmd()
     "echo path
-    let grep_cmd = "find ".path." ". exclude ." -type f|xargs grep -F --exclude-dir='.svn' -Rn ".key
+    let grep_cmd = "find ".path." ". exclude ." -type f  -exec grep -H -F -Rn ".key." {} \\; "
     "echo grep_cmd
     let bytecode = system(grep_cmd)
     set modifiable
