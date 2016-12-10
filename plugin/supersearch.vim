@@ -41,6 +41,10 @@
 "最后：
 "        在插件文件的尾部定义了搜索快捷键，你可以自己修改为你喜欢的
 "
+"2016/12/10:
+"   1. 修复在无配置文件情况下搜索时未指定目录问题（之前mac下会报错）
+"   2. 修改搜索结果展示，只显示相对文件名（之前显示全路径）
+"
 "2016/09/07:
 "   1.修复搜索问题
 "
@@ -63,7 +67,7 @@
 
 let g:conf_name = "project.ini"
 let g:project_path = ""
-let g:source_path = []
+let g:source_path = ["."]
 let g:conf_dict = {}
 
 func! FileSupportCheck()
@@ -115,6 +119,7 @@ func! LoadConfig()
         let config_file = findfile(g:conf_name, config_path)
         if config_file != ""
             call ReadConfig(config_file)
+            let g:source_path = []
             for path in split(globpath(config_path, '*'), "\n")
                 if isdirectory(path)
                     let fileName = GetFileName(path)
@@ -192,21 +197,21 @@ endfunction
 
 
 
-func! OpenFile()
+func! OpenSearchResultFile()
     let info = split(getline("."), ":")
     if len(info) < 1
         return
     endif
     let filename = info[0]
     let linenumber = info[1]
+    let fullpath = g:project_path.filename
     "关闭搜索窗口
     call CloseSearchWindow()
-    execute "tabnew +".linenumber." ".filename
-    "execute "edit +".linenumber." ".filename
+    execute "tabnew +".linenumber." ".fullpath
 endfunc
 
 func! GetSearchExcludeCmd()
-    let cmd = "! -name 'tags' ! -name '*.swp'"
+    let cmd = "! -name 'tags' ! -name '*.swp' ! -path '*/.*/*' "
     if has_key(g:conf_dict, "FindExcludeFile")
         for key in split(g:conf_dict["FindExcludeFile"], ",")
             let cmd = cmd . " ! -name '" . key . "'"
@@ -222,17 +227,20 @@ func! OpenSearchWindow(k)
     let path = join(g:source_path, " ")
     let exclude = GetSearchExcludeCmd()
     "echo path
-    let grep_cmd = "find ".path." ". exclude ." -type f  -exec grep -H -F -Rn ".key." {} \\; "
+    let grep_cmd = "find ".path." ". exclude ." -type f  -exec grep -HFRn ".key." {} \\; "
     "echo grep_cmd
     let bytecode = system(grep_cmd)
     set modifiable
-    call append(0, split(bytecode, '\v\n'))
-    nnoremap <buffer> <silent> <CR> : call OpenFile()<CR>
+    for line in split(bytecode,'\v\n')
+        call append(0, substitute(line, g:project_path, "", ""))
+    endfor
+    nnoremap <buffer> <silent> <CR> : call OpenSearchResultFile()<CR>
     nnoremap <buffer> <silent> <ESC> : call CloseSearchWindow()<CR>
     "set nomodifiable
     call search(a:k)
     call matchadd('Search', a:k)
 endfunc
+
 
 func! KeySearch()
     let key = expand("<cword>")
