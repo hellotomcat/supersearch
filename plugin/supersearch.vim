@@ -1,7 +1,7 @@
 " File: supersearch.vim
 " Author: Tian (root AT codecn DOT org)
-" Version: 1.6
-" Last Modified: 2016.9.7
+" Version: 1.8
+" Last Modified: 2016.12.12
 " Copyright: Copyright (C) 2015 ~ 2016 Tian,Teikay
 "
 " The "Super Search" plugin is a source code browser plugin for Vim and provides
@@ -40,6 +40,10 @@
 "
 "最后：
 "        在插件文件的尾部定义了搜索快捷键，你可以自己修改为你喜欢的
+"
+"2016/12/12:
+"   1.添加是否自动加载ctags功能
+"   2.优化读取配置文件代码
 "
 "2016/12/10:
 "   1. 修复在无配置文件情况下搜索时未指定目录问题（之前mac下会报错）
@@ -81,13 +85,13 @@ endfunc
 func! ReadConfig(f)
     for line in readfile(a:f)
         "去掉无用的信息,只保留第一段配置内容
-        "TODO add trim
-        "let line = trim(line)
-        if stridx(line, "#") == 0
-            continue
+        let field = substitute(line, "#.*", "", "")
+        let field = substitute(field, "//.*", "", "")
+        let field = substitute(field, "\\s$", "", "")
+        let kv = split(field, "=")
+        if len(kv) == 2
+            let g:conf_dict[kv[0]] = kv[1]
         endif
-        let kv = split(line, "=")
-        let g:conf_dict[kv[0]] = kv[1]
     endfor
 endfunc
 
@@ -179,7 +183,14 @@ func! UpdateTags()
 endfunc
 
 
-function! SuperSearchStart()
+func! CtagsEnable()
+    if has_key(g:conf_dict, "CtagsEnable") && g:conf_dict["CtagsEnable"] == "true"
+        return 1
+    endif
+    return 0
+endfunc
+
+func! SuperSearchStart()
     "是否支持
     if !FileSupportCheck()
         return
@@ -190,9 +201,11 @@ function! SuperSearchStart()
         return
     endif
 
-    call UpdateTags()
+    if CtagsEnable()
+        call UpdateTags()
+    endif
 
-endfunction
+endfunc
 
 
 
@@ -252,7 +265,7 @@ func! TestProject()
     if len(g:project_path) > 0
         if has_key(g:conf_dict, "Test")
             let cmd = "cd ".g:project_path." ;". g:conf_dict["Test"]." ; cd -"
-            echo cmd
+            "echo cmd
             let bytecode = system(cmd)
             echo bytecode
         endif
@@ -264,7 +277,7 @@ func! MakeProject()
     if len(g:project_path) > 0
         if has_key(g:conf_dict, "Make")
             let cmd = "cd ".g:project_path." ;". g:conf_dict["Make"]." ; cd -"
-            echo cmd
+            "echo cmd
             let bytecode = system(cmd)
             echo bytecode
         endif
@@ -293,6 +306,7 @@ func! FormatFile()
         w!
         let fileName = expand("%:p")
         let cmd = g:conf_dict["Format"]." ".fileName
+        "echo cmd
         let res = system(cmd)
         if len(res) && stridx(res, ":") != -1
             echo res
