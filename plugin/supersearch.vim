@@ -76,7 +76,7 @@ let g:conf_dict = {}
 
 func! FileSupportCheck()
     let ftype = expand("%:e")
-    if ftype ==? "c" || ftype ==? "cpp" || ftype ==? "cc" || ftype ==? "java" || ftype ==? "py" ||  ftype ==? "h" || ftype ==? "go" || ftype ==? "php"
+    if ftype ==? "c" || ftype ==? "cpp" || ftype ==? "cc" || ftype ==? "java" || ftype ==? "py" ||  ftype ==? "h" || ftype ==? "go" || ftype ==? "php" || ftype ==? "java"
         return 1
     endif
     return 0
@@ -225,6 +225,11 @@ endfunc
 
 func! GetSearchExcludeCmd()
     let cmd = "! -name 'tags' ! -name '*.swp' ! -path '*/.*/*' "
+    if has_key(g:conf_dict, "ExcludePath")
+        for key in split(g:conf_dict["ExcludePath"], ",")
+            let cmd = cmd . " ! -path '*" . key . "*'"
+        endfor
+    endif
     if has_key(g:conf_dict, "FindExcludeFile")
         for key in split(g:conf_dict["FindExcludeFile"], ",")
             let cmd = cmd . " ! -name '" . key . "'"
@@ -234,13 +239,20 @@ func! GetSearchExcludeCmd()
 endfunc
 
 
-func! OpenSearchWindow(k)
+func! OpenSearchWindow(k, regexp)
     let key = shellescape(a:k)
     copen
-    let path = join(g:source_path, " ")
+    let path = g:project_path
     let exclude = GetSearchExcludeCmd()
     "echo path
-    let grep_cmd = "find ".path." ". exclude ." -type f  -exec grep -HFRn ".key." {} \\; "
+    let grep_args = "-HRn"
+
+    "是否为正则搜索
+    if (!a:regexp)
+        let grep_args .= "F"
+    endif
+
+    let grep_cmd = "find ".path." ". exclude ." -type f -exec grep ".grep_args." ".key." {} \\; "
     "echo grep_cmd
     let bytecode = system(grep_cmd)
     set modifiable
@@ -249,6 +261,7 @@ func! OpenSearchWindow(k)
     endfor
     nnoremap <buffer> <silent> <CR> : call OpenSearchResultFile()<CR>
     nnoremap <buffer> <silent> <ESC> : call CloseSearchWindow()<CR>
+    let w:quickfix_title = 'Search:['.a:k.'] Regexp:['.a:regexp.']'
     "set nomodifiable
     call search(a:k)
     call matchadd('Search', a:k)
@@ -257,7 +270,24 @@ endfunc
 
 func! KeySearch()
     let key = expand("<cword>")
-    call OpenSearchWindow(key)
+    call OpenSearchWindow(key, 0)
+endfunc
+
+func! FuncUsedSearch()
+    let key = expand("<cword>")
+    "成员函数结果为0, 非成员结果-1
+    if (match(getline('.'), "func\\s(\.\*)\\s".key) == 0)
+        let key = '.'.key.'('
+    else
+        let key = key.'('
+    endif
+
+    call OpenSearchWindow(key, 0)
+endfunc
+
+func! FuncImplSearch()
+    let key = 'func.* '.expand("<cword>").'('
+    call OpenSearchWindow(key, 1)
 endfunc
 
 func! TestProject()
@@ -322,6 +352,8 @@ endfunc
 call SuperSearchStart()
 
 nnoremap ,s :call KeySearch()<cr>
+nnoremap ,u :call FuncUsedSearch()<cr>
+nnoremap ,d :call FuncImplSearch()<cr>
 vnoremap ,s :call SelectSearch()<cr>
 nnoremap ,f :call FormatFile()<cr>
 map <F8> :call TestProject()<CR>
